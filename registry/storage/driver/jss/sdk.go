@@ -19,6 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/vmware/harbor/src/common/utils/log"
 )
 
 type Client struct {
@@ -97,6 +98,10 @@ func (b *Bucket) Put(objName string, data []byte) error {
 	headers.Set("Content-Type", "application/octet-stream")
 	headers.Set("Content-MD5", getBytesMd5(data))
 
+	log.Info("debug jss: bucketName: " + b.Name +", objName: " +  objName)
+	log.Info(headers)
+	log.Info(make(url.Values))
+
 	_, _, err := b.Client.doRequest(&request{
 		method:     http.MethodPut,
 		bucketName: b.Name,
@@ -105,6 +110,10 @@ func (b *Bucket) Put(objName string, data []byte) error {
 		params:     make(url.Values),
 		body:       data,
 	})
+
+	log.Info(err)
+	log.Info("end debug jss")
+
 	return err
 }
 
@@ -503,6 +512,9 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 		resource += req.objectName
 	}
 
+	// add log by henrylv
+	log.Info("method: " + req.method + ", host + resource: " + client.host+resource)
+
 	date := time.Now().UTC().Format(http.TimeFormat)
 	hreq, _ := http.NewRequest(req.method, client.host+resource, bytes.NewReader(req.body))
 	hreq.Form = req.params
@@ -533,6 +545,11 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 		hreq.Header.Set("Authorization", sign)
 	}
 	hreq.URL.RawQuery = hreq.Form.Encode()
+
+	// add log by hernylv
+	log.Info(hreq.URL.RawQuery)
+	log.Info(hreq.Header)
+	log.Info(hreq.Form)
 
 	resp, err := client.httpClient.Do(hreq)
 	if err != nil || resp == nil {
