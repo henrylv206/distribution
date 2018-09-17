@@ -19,7 +19,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"github.com/vmware/harbor/src/common/utils/log"
+	log "github.com/Sirupsen/logrus"
 )
 
 type Client struct {
