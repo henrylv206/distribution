@@ -98,8 +98,8 @@ func (b *Bucket) Put(objName string, data []byte) error {
 	headers.Set("Content-Type", "application/octet-stream")
 	headers.Set("Content-MD5", getBytesMd5(data))
 
-	log.Info("debug jss: bucketName: " + b.Name +", objName: " +  objName)
-	log.Info(headers)
+	log.Info("1. debug jss: bucketName: " + b.Name +", objName: " +  objName + ", data: " + string(data))
+	log.Info("2. debug jss, headers: ", headers)
 	log.Info(make(url.Values))
 
 	_, _, err := b.Client.doRequest(&request{
@@ -111,8 +111,8 @@ func (b *Bucket) Put(objName string, data []byte) error {
 		body:       data,
 	})
 
-	log.Info(err)
-	log.Info("end debug jss")
+	log.Info("-2. debug jss, err: ", err)
+	log.Info("-1. debug jss: end debug jss")
 
 	return err
 }
@@ -513,7 +513,7 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 	}
 
 	// add log by henrylv
-	log.Info("method: " + req.method + ", host + resource: " + client.host+resource)
+	log.Info("3. debug jss, method: " + req.method + ", host + resource: " + client.host+resource)
 
 	date := time.Now().UTC().Format(http.TimeFormat)
 	hreq, _ := http.NewRequest(req.method, client.host+resource, bytes.NewReader(req.body))
@@ -533,7 +533,7 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 		}
 		customHead := strings.Join(bs, "\n")
 
-		log.Infof("debug jss, custom header: %s", customHead)
+		log.Infof("4. debug jss, custom header: %s", customHead)
 
 		h := hmac.New(sha1.New, []byte(client.secretKey))
 		var param []string
@@ -543,7 +543,7 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 			param = []string{hreq.Method, hreq.Header.Get("Content-MD5"), hreq.Header.Get("Content-Type"), hreq.Header.Get("Date"), resource}
 		}
 
-		log.Infof("debug jss, md5 params: %s", strings.Join(param, "\n"))
+		log.Infof("5. debug jss, md5 params: %s", strings.Join(param, "\n"))
 
 		io.WriteString(h, strings.Join(param, "\n"))
 		sign := "jingdong " + client.accessKey + ":" + base64.StdEncoding.EncodeToString(h.Sum(nil))
@@ -552,8 +552,8 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 	hreq.URL.RawQuery = hreq.Form.Encode()
 
 	// add log by hernylv
-	log.Infof("debug jss, form: %s", hreq.URL.RawQuery)
-	log.Infof("debug jss, header: %s", hreq.Header)
+	log.Infof("6. debug jss, form: %s", hreq.URL.RawQuery)
+	log.Infof("7. debug jss, header: %s", hreq.Header)
 
 
 	resp, err := client.httpClient.Do(hreq)
@@ -565,7 +565,7 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 
 	respData, err := ioutil.ReadAll(resp.Body)
 
-	log.Infof("debug jss, response code: %s, response status: %s, response data: %s", resp.StatusCode, resp.Status, string(respData))
+	log.Infof("8. debug jss, response code: %s, response status: %s, response data: %s", resp.StatusCode, resp.Status, string(respData))
 
 	if err != nil {
 		return nil, resp.Header, err
