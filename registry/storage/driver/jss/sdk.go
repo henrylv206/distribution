@@ -533,6 +533,8 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 		}
 		customHead := strings.Join(bs, "\n")
 
+		log.Infof("debug jss, custom header: %s", customHead)
+
 		h := hmac.New(sha1.New, []byte(client.secretKey))
 		var param []string
 		if len(customHead) > 0 {
@@ -540,6 +542,9 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 		} else {
 			param = []string{hreq.Method, hreq.Header.Get("Content-MD5"), hreq.Header.Get("Content-Type"), hreq.Header.Get("Date"), resource}
 		}
+
+		log.Infof("debug jss, md5 params: %s", strings.Join(param, "\n"))
+
 		io.WriteString(h, strings.Join(param, "\n"))
 		sign := "jingdong " + client.accessKey + ":" + base64.StdEncoding.EncodeToString(h.Sum(nil))
 		hreq.Header.Set("Authorization", sign)
@@ -547,9 +552,9 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 	hreq.URL.RawQuery = hreq.Form.Encode()
 
 	// add log by hernylv
-	log.Info(hreq.URL.RawQuery)
-	log.Info(hreq.Header)
-	log.Info(hreq.Form)
+	log.Infof("debug jss, form: %s", hreq.URL.RawQuery)
+	log.Infof("debug jss, header: %s", hreq.Header)
+
 
 	resp, err := client.httpClient.Do(hreq)
 	if err != nil || resp == nil {
@@ -559,6 +564,9 @@ func (client *Client) doRequest(req *request) ([]byte, http.Header, error) {
 	defer resp.Body.Close()
 
 	respData, err := ioutil.ReadAll(resp.Body)
+
+	log.Infof("debug jss, response code: %s, response status: %s, response data: %s", resp.StatusCode, resp.Status, string(respData))
+
 	if err != nil {
 		return nil, resp.Header, err
 	}
