@@ -277,9 +277,9 @@ func (b *Bucket) List(prefix, delim, marker string, max int) (result *ListResp, 
 }
 
 func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, params url.Values, headers http.Header) string {
-	if !strings.HasPrefix(b.Name, "/") {
-		b.Name = "/" + b.Name
-	}
+	//if !strings.HasPrefix(b.Name, "/") {
+	//	b.Name = "/" + b.Name
+	//}
 
 	if path != "" {
 		if !strings.HasPrefix(path, "/") {
@@ -308,7 +308,7 @@ func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, par
 	io.WriteString(h, strings.Join(param, "\n"))
 	Signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	endSignature := url.QueryEscape(Signature)
-	queryUrl := b.host + b.Name + path + "?Expires=" + Expires + "&AccessKey=" + b.Client.accessKey + "&Signature=" + endSignature
+	queryUrl := b.host + "/" + b.Name + path + "?Expires=" + Expires + "&AccessKey=" + b.Client.accessKey + "&Signature=" + endSignature
 	return queryUrl
 }
 
@@ -321,6 +321,9 @@ const (
 func (b *Bucket) CopyObj(sourcePath string, destPath string, isMove bool) error {
 	moveHeaders := make(http.Header)
 	//copySource := fmt.Sprintf("%s%s", b.Name, url.QueryEscape(sourcePath))
+
+	log.Info("10. debug jss, bucket name: %s", b.Name)
+
 	copySource := fmt.Sprintf("/%s/%s", b.Name, sourcePath)
 	if isMove {
 		moveHeaders.Set(X_JSS_MOVE_SOURCE, copySource)

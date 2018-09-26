@@ -15,6 +15,7 @@ import (
 	storagedriver "github.com/docker/distribution/registry/storage/driver"
 	"github.com/docker/distribution/registry/storage/driver/base"
 	"github.com/docker/distribution/registry/storage/driver/factory"
+	log "github.com/Sirupsen/logrus"
 )
 
 const (
@@ -323,6 +324,8 @@ func (d *driver) URLFor(ctx context.Context, path string, options map[string]int
 			expiresTime = et
 		}
 	}
+
+	log.Infof("9. debug jss, jss.go urlfor, SignedURLWithMethod, bucket name: %s", d.Bucket.Name)
 
 	return d.Bucket.SignedURLWithMethod(methodString, pathToKey(path), expiresTime, nil, nil), nil
 }
