@@ -298,7 +298,7 @@ func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, par
 
 	Expires := strconv.FormatInt(expires.Unix(), 10)
 	h := hmac.New(sha1.New, []byte(b.Client.secretKey))
-	resource := b.Name + path
+	resource := "/" + b.Name + path
 	var param []string
 	if len(customHead) > 0 {
 		param = []string{method, "", "", Expires, customHead, resource}
