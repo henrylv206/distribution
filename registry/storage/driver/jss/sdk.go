@@ -277,8 +277,10 @@ func (b *Bucket) List(prefix, delim, marker string, max int) (result *ListResp, 
 }
 
 func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, params url.Values, headers http.Header) string {
-	if !strings.HasPrefix(b.Name, "/") {
-		b.Name = "/" + b.Name
+
+	bName := b.Name
+	if !strings.HasPrefix(bName, "/") {
+		bName = "/" + b.Name
 	}
 
 	if path != "" {
@@ -298,7 +300,7 @@ func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, par
 
 	Expires := strconv.FormatInt(expires.Unix(), 10)
 	h := hmac.New(sha1.New, []byte(b.Client.secretKey))
-	resource := b.Name + path
+	resource := bName + path
 	var param []string
 	if len(customHead) > 0 {
 		param = []string{method, "", "", Expires, customHead, resource}
@@ -308,7 +310,7 @@ func (b *Bucket) SignedURLWithMethod(method, path string, expires time.Time, par
 	io.WriteString(h, strings.Join(param, "\n"))
 	Signature := base64.StdEncoding.EncodeToString(h.Sum(nil))
 	endSignature := url.QueryEscape(Signature)
-	queryUrl := b.host + b.Name + path + "?Expires=" + Expires + "&AccessKey=" + b.Client.accessKey + "&Signature=" + endSignature
+	queryUrl := b.host + bName + path + "?Expires=" + Expires + "&AccessKey=" + b.Client.accessKey + "&Signature=" + endSignature
 
 	log.Infof("11. debug jss, signature: %s", queryUrl)
 
